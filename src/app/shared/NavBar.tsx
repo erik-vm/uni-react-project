@@ -32,7 +32,8 @@ export default function NavBar() {
               </MenuItem>
             </Box>
             <Box sx={{ display: "flex" }}>
-              <MenuItemLink to="/sessions">Sessions</MenuItemLink>
+              <MenuItemLink to="/dashboard">Dashboard</MenuItemLink>
+              <MenuItemLink to="/create">Create new session</MenuItemLink>
               
             <MenuItem>User Menu</MenuItem>
             </Box>

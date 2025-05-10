@@ -1,25 +1,33 @@
-import { Box, Card, CardHeader, Divider } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardHeader,
+  Divider,
+  Grid,
+  Typography,
+} from "@mui/material";
 import type { IGpsSession } from "../../../types/IGpsSession";
-import { formatDate, formatDuration } from "../../../utils/util";
+import {
+  formatDate,
+  formatDistance,
+  formatDuration,
+  formatElevation,
+  formatPace,
+} from "../../../utils/util";
+import type { IGpsSessionType } from "../../../types/IGpsSessionType";
+import { Link } from "react-router";
 
 type Props = {
   gpsSession: IGpsSession;
+  gpsSessionTypes: IGpsSessionType[];
 };
 
-export default function GpsSessionCard({ gpsSession }: Props) {
-  //       name: string;
-  //   description: string;
-  //   recordedAt: string;
-  //   duration: number;
-  //   speed: number;
-  //   distance: number;
-  //   climb: number;
-  //   descent: number;
-  //   paceMin: number;
-  //   paceMax: number;
-  //   gpsSessionType: string;
-  //   gpsLocationsCount: number;
-  //   userFirstLastName: string;
+export default function GpsSessionCard({ gpsSession, gpsSessionTypes }: Props) {
+  const parsedSessionType = JSON.parse(gpsSession.gpsSessionType);
+  const sessionTypeMatch = gpsSessionTypes.find(
+    (type) => type.name === parsedSessionType.en
+  );
 
   return (
     <Card
@@ -28,22 +36,114 @@ export default function GpsSessionCard({ gpsSession }: Props) {
     >
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardHeader
-          title={gpsSession.userFirstLastName}
-          subheader={
+          sx={{ backgroundColor: "#20A7AC", color: "white" }}
+          title={
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                width: "100%",
+                alignContent: "center",
               }}
             >
-              <span>{formatDate(gpsSession.recordedAt)}</span>
+              <Typography variant="h4">
+                {gpsSession.userFirstLastName}
+              </Typography>
+              <Button
+              component={Link}
+              to={`/edit/${gpsSession.id}`}
+                variant="contained"
+                size="large"
+                color="warning"
+              >
+                Edit
+              </Button>
+            </Box>
+          }
+          subheader={
+            <Box
+              sx={{
+                display: "flex",
+                width: "100%",
+                alignItems: "center",
+                color: "#EEEEEE",
+              }}
+            >
+              <span>{formatDate(gpsSession.recordedAt)}</span>{" "}
+              <strong
+                style={{
+                  marginLeft: 10,
+                  marginRight: 10,
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                }}
+              >
+                |
+              </strong>
+              <span>Distance: {formatDistance(gpsSession.distance)}</span>
+              <strong
+                style={{
+                  marginLeft: 10,
+                  marginRight: 10,
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                }}
+              >
+                |
+              </strong>
               <span>Duration: {formatDuration(gpsSession.duration)}</span>
+              <strong
+                style={{
+                  marginLeft: 10,
+                  marginRight: 10,
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                }}
+              >
+                |
+              </strong>
               <span>Location count: {gpsSession.gpsLocationsCount}</span>
             </Box>
           }
         />
-        <Divider/>
+        <Divider />
+
+        <Grid container>
+          <Grid
+            size={6}
+            p={2}
+          >
+            <Typography variant="body1">Name: {gpsSession.name}</Typography>
+            <Typography variant="body2">
+              Description: {gpsSession.description}
+            </Typography>
+            <Typography variant="body2">
+              Type: {sessionTypeMatch?.name}
+            </Typography>
+          </Grid>
+          <Grid
+            size={6}
+            p={2}
+            display={"flex"}
+            alignItems={"flex-end"}
+          >
+            <Grid size={6}>
+              <Typography variant="body2">
+                Min/pace: {formatPace(gpsSession.paceMin)}
+              </Typography>
+              <Typography variant="body2">
+                Max/pace: {formatPace(gpsSession.paceMax)}
+              </Typography>
+            </Grid>
+            <Grid size={6}>
+              <Typography variant="body2">
+                Climb: {formatElevation(gpsSession.climb)}{" "}
+              </Typography>
+              <Typography variant="body2">
+                Descent: {formatElevation(gpsSession.descent)}{" "}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
       </Box>
     </Card>
   );
