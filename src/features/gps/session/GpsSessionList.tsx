@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
-import { useGpsSessions } from "../../../hooks/useGpsSessions";
 import GpsSessionCard from "./GpsSessionCard";
+import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
 
 export default function GpsSessionList() {
 const {sessions, sessionTypes} = useGpsSessions();

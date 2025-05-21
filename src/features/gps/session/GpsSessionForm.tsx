@@ -1,10 +1,11 @@
 import { useNavigate, useParams } from "react-router";
-import { useGpsSessions } from "../../../hooks/useGpsSessions";
+
 import type { FormEvent } from "react";
 import type { IGpsSession } from "../../../types/IGpsSession";
 import { Paper, TextField, Typography } from "@mui/material";
 import { Box, flex } from "@mui/system";
 import { formatDate, formatDistance } from "../../../utils/util";
+import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
 
 export default function GpsSessionForm() {
   const { id } = useParams();

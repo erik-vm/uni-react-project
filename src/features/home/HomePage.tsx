@@ -32,7 +32,7 @@ export default function HomePage() {
         <Typography variant="h2">Welcome to final project!</Typography>
         <Button
           component={Link}
-          to="/dashboard"
+          to="/login"
           size="large"
           variant="contained"
           sx={{

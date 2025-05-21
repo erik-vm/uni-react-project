@@ -48,15 +48,27 @@ export default function GpsSessionCard({ gpsSession, gpsSessionTypes }: Props) {
               <Typography variant="h4">
                 {gpsSession.userFirstLastName}
               </Typography>
-              <Button
+              <Box display={'flex'} gap={1}>
+    <Button
               component={Link}
               to={`/edit/${gpsSession.id}`}
                 variant="contained"
                 size="large"
-                color="warning"
+                color="primary"
               >
                 Edit
               </Button>
+                  <Button
+              component={Link}
+              to={`/delete/${gpsSession.id}`}
+                variant="contained"
+                size="large"
+                color="error"
+              >
+                Delete
+              </Button>
+              </Box>
+          
             </Box>
           }
           subheader={

@@ -1,4 +1,5 @@
 import { type DateArg, format } from "date-fns";
+import z from "zod";
 
 // Formats date to more readable output
 export function formatDate(date: DateArg<Date>) {
@@ -44,3 +45,7 @@ export function formatElevation(elevation: number): string {
   const meters = (elevation / 1000).toFixed(1);
   return `${meters}m`;
 }
+
+export const requiredString = (fieldName: string) => z
+    .string({ required_error: `${fieldName} is required` })
+    .min(1, { message: `${fieldName} is required` })
