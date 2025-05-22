@@ -1,6 +1,5 @@
-import { Add, Logout } from "@mui/icons-material";
+import { Logout } from "@mui/icons-material";
 import { Box, Divider, ListItemIcon, ListItemText } from "@mui/material";
-import ListIcon from "@mui/icons-material/List";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";

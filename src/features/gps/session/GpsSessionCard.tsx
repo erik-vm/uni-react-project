@@ -51,22 +51,14 @@ export default function GpsSessionCard({ gpsSession, gpsSessionTypes }: Props) {
               <Box display={'flex'} gap={1}>
     <Button
               component={Link}
-              to={`/edit/${gpsSession.id}`}
+              to={`/view/${gpsSession.id}`}
                 variant="contained"
                 size="large"
                 color="primary"
               >
-                Edit
+                View
               </Button>
-                  <Button
-              component={Link}
-              to={`/delete/${gpsSession.id}`}
-                variant="contained"
-                size="large"
-                color="error"
-              >
-                Delete
-              </Button>
+                 
               </Box>
           
             </Box>
