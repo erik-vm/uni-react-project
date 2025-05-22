@@ -1,11 +1,10 @@
 import { useNavigate, useParams } from "react-router";
 
-import { Button, MenuItem, Paper, TextField, Typography, Select, FormControl, InputLabel } from "@mui/material";
+import { Button, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { DateTimePicker } from "@mui/x-date-pickers";
-import { useContext, type FormEvent } from "react";
+import { type FormEvent } from "react";
 import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
-import { StoreContext } from "../../../lib/stores/store";
 import type { IGpsSession } from "../../../types/IGpsSession";
 import { formatDistance } from "../../../utils/util";
 
@@ -15,7 +14,7 @@ export default function GpsSessionForm() {
   const { session, createSession, updateSession, sessionTypes } =
     useGpsSessions(id);
 
-  const { userStore } = useContext(StoreContext);
+  // const { userStore } = useContext(StoreContext);
 
   const navigate = useNavigate();
 
@@ -42,9 +41,11 @@ export default function GpsSessionForm() {
     });
 
     if (session) {
-      data.id = session.id;
-      await updateSession.mutateAsync(data);
-      navigate("/dashboard");
+      await updateSession.mutateAsync(session.id, {
+        onSuccess: () => {
+          navigate("/dashboard");
+        },
+      });
     } else {
       createSession.mutate(data as unknown as IGpsSession, {
         onSuccess: () => {
@@ -70,45 +71,51 @@ export default function GpsSessionForm() {
         flexDirection={"column"}
         gap={2}
       >
-        <TextField
-          name="creator"
-          label="Creator"
-          defaultValue={
-            session ? session.userFirstLastName : userStore.fullName
-          }
-          disabled
-        />
+        {session && (
+          <TextField
+            name="creator"
+            label="Creator"
+            defaultValue={session.userFirstLastName}
+            disabled
+          />
+        )}
         <TextField
           name="name"
           label="Session name"
           defaultValue={session?.name || ""}
           required
         />
-        <DateTimePicker 
-          name="recordedAt"
-          label="Recorded At"
-          value={session ? new Date(session.recordedAt) : null} 
-        />
-        <FormControl fullWidth>
-          <InputLabel>Session Type</InputLabel>
-          <Select
-            name="sessionType"
-            label="Session Type"
-            defaultValue={getDefaultSessionType()}
-            required
-          >
-            {sessionTypes?.map(type => (
-              <MenuItem key={type.id} value={type.description}>
-                {type.description}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <TextField
-          name="distance"
-          label="Distance"
-          defaultValue={session ? formatDistance(session.distance) : ""}
-        />
+        {session && (
+          <DateTimePicker 
+            name="recordedAt"
+            label="Recorded At"
+            value={new Date(session.recordedAt)} 
+          />
+        )}
+        {session && (
+          <FormControl fullWidth>
+            <InputLabel>Session Type</InputLabel>
+            <Select
+              name="sessionType"
+              label="Session Type"
+              defaultValue={getDefaultSessionType()}
+              required
+            >
+              {sessionTypes?.map(type => (
+                <MenuItem key={type.id} value={type.description}>
+                  {type.description}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+        {session && (
+          <TextField
+            name="distance"
+            label="Distance"
+            defaultValue={formatDistance(session.distance)}
+          />
+        )}
         <TextField
           name="description"
           label="Description"

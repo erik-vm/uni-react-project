@@ -7,7 +7,7 @@ type Props = {
 
 export default function MapComponent({position}: Props) {
     return (
-        <MapContainer center={position} zoom={13} scrollWheelZoom={false} style={{height: '100%'}}>
+        <MapContainer center={position} zoom={13} scrollWheelZoom={true} style={{height: '100%'}}>
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
