@@ -11,6 +11,13 @@ import {
   Select,
   Typography,
 } from "@mui/material";
+import {
+  formatDate,
+  formatDistance,
+  formatDuration,
+  formatElevation,
+  formatPace,
+} from "../../../utils/util";
 import { Link, useParams } from "react-router";
 import { useState, useEffect } from "react";
 import MapComponent from "../../../app/shared/components/MapComponent";
@@ -18,7 +25,7 @@ import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
 
 export default function GpsSessionView() {
   const { id } = useParams();
-  const { session, sessionLocation } = useGpsSessions(id);
+  const { session, sessionLocation, deleteSession } = useGpsSessions(id);
   const [selectedLocationId, setSelectedLocationId] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
 
@@ -74,8 +81,7 @@ export default function GpsSessionView() {
                     Edit
                   </Button>
                   <Button
-                    component={Link}
-                    to={`/delete/${id}`}
+                    onClick={() => deleteSession}
                     variant="contained"
                     size="large"
                     color="error"
@@ -94,7 +100,7 @@ export default function GpsSessionView() {
                   color: "#EEEEEE",
                 }}
               >
-                <span>{session?.recordedAt}</span>{" "}
+                <span>{session ? formatDate(session.recordedAt) : undefined}</span>{" "}
                 <strong
                   style={{
                     marginLeft: 10,
@@ -105,7 +111,7 @@ export default function GpsSessionView() {
                 >
                   |
                 </strong>
-                <span>Distance: {session?.distance}</span>
+                <span>Distance: {session ? formatDistance(session.distance) : undefined}</span>
                 <strong
                   style={{
                     marginLeft: 10,
@@ -116,7 +122,7 @@ export default function GpsSessionView() {
                 >
                   |
                 </strong>
-                <span>Duration: {session?.duration}</span>
+                <span>Duration: {session ? formatDuration(session.duration) : undefined}</span>
                 <strong
                   style={{
                     marginLeft: 10,
@@ -151,27 +157,28 @@ export default function GpsSessionView() {
               </Grid>
 
               <Grid
-                size={6}
+                size={12}
                 p={2}
+                gap={1}
                 display={"flex"}
                 alignItems={"flex-end"}
                 flexDirection={"column"}
               >
                 <Grid size={12}>
                   <Typography variant="body2">
-                    Min/pace: {session?.paceMin}
+                    Min/pace: {session ? formatPace(session.paceMin) : undefined}
                   </Typography>
                   <Typography variant="body2">
-                    Max/pace: {session?.paceMax}
+                    Max/pace: {session ? formatPace(session.paceMax) : undefined}
                   </Typography>
                 </Grid>
 
                 <Grid size={12}>
                   <Typography variant="body2">
-                    Climb: {session?.climb}{" "}
+                    Climb: {session ? formatElevation(session.climb) : undefined}
                   </Typography>
                   <Typography variant="body2">
-                    Descent: {session?.descent}{" "}
+                    Descent: {session ? formatElevation(session.descent) : undefined}
                   </Typography>
                 </Grid>
               </Grid>

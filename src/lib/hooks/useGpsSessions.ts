@@ -48,7 +48,8 @@ export const useGpsSessions = (id?: string) => {
 
   const deleteSession = useMutation({
     mutationFn: async (id: string) => {
-      await agent.delete(`/GpsSessions/${id}`);
+      const response = await agent.delete(`/GpsSessions/${id}`);
+      console.log(response.data)
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -65,11 +66,11 @@ export const useGpsSessions = (id?: string) => {
     },
   });
 
+
    const { data: sessionLocation } = useQuery({
     queryKey: ["sessionsLocation", id],
     queryFn: async () => {
       const response = await agent.get<IGpsLocation[]>(`/GpsLocations/Session/${id}`);
-      console.log(response.data)
       return response.data;
     },
     enabled: !!id,

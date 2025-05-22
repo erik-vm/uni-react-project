@@ -8,6 +8,7 @@ import LoginForm from "../../features/account/LoginForm";
 import RequireAuth from "./RequiredAuth";
 import RegisterForm from "../../features/account/RegisterForm";
 import GpsSessionView from "../../features/gps/session/GpsSessionView";
+import RequireGuest from "./RequiredGuest";
 
 export const router = createBrowserRouter([
   {
@@ -23,9 +24,15 @@ export const router = createBrowserRouter([
           { path: "/dashboard", element: <Dashboard /> },
         ],
       },
+      {
+        element: <RequireGuest />,
+        children: [
+          { path: "/login", element: <LoginForm /> },
+          { path: "/register", element: <RegisterForm /> },
+        ],
+      },
+
       { path: "/", element: <HomePage /> },
-      { path: "/login", element: <LoginForm /> },
-      { path: "/register", element: <RegisterForm /> },
     ],
   },
 ]);
