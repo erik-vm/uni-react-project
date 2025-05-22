@@ -35,4 +35,7 @@ export const router = createBrowserRouter([
       { path: "/", element: <HomePage /> },
     ],
   },
-]);
+  
+], {
+  basename: "/uni-react-project" 
+});
