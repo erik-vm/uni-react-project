@@ -1,31 +1,38 @@
 import { useNavigate, useParams } from "react-router";
 
-import { Button, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography
+} from "@mui/material";
 import { Box } from "@mui/system";
-import { DateTimePicker } from "@mui/x-date-pickers";
 import { type FormEvent } from "react";
 import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
 import type { IGpsSession } from "../../../types/IGpsSession";
-import { formatDistance } from "../../../utils/util";
 
 export default function GpsSessionForm() {
   const { id } = useParams();
 
-  const { session, createSession, updateSession, sessionTypes } =
-    useGpsSessions(id);
+  const { session, createSession, updateSession, sessionTypes } = useGpsSessions(id);
 
-  // const { userStore } = useContext(StoreContext);
+  
 
   const navigate = useNavigate();
 
-  // Get the default session type value
-  const getDefaultSessionType = () => {
+  // Get the default session type ID
+  const getDefaultSessionTypeId = () => {
     if (session) {
-      // If editing, use the session's current type
-      return session.gpsSessionType || (sessionTypes?.[0]?.description || "");
+      // If editing, try to get the current session type ID
+      // You might need to adjust this based on how your session stores the type
+      return session.gpsSessionType || sessionTypes?.[0]?.id || "";
     } else {
       // If creating, use the first available type as default
-      return sessionTypes?.[0]?.description || "";
+      return sessionTypes?.[0]?.id || "";
     }
   };
 
@@ -40,18 +47,28 @@ export default function GpsSessionForm() {
       data[key] = value;
     });
 
-    if (session) {
-      await updateSession.mutateAsync(session.id, {
-        onSuccess: () => {
-          navigate("/dashboard");
-        },
-      });
-    } else {
-      createSession.mutate(data as unknown as IGpsSession, {
-        onSuccess: () => {
-          navigate("/dashboard");
-        },
-      });
+    try {
+      if (session) {
+        // For update, pass the data with the session ID
+        await updateSession.mutateAsync({
+          id: session.id,
+          name: data.name as string,
+          description: data.description as string,
+          sessionTypeId: data.sessionTypeId as string,
+        } as IGpsSession & { id: string });
+        navigate("/dashboard");
+      } else {
+        // For create, pass name, description, and sessionTypeId
+        await createSession.mutateAsync({
+          name: data.name as string,
+          description: data.description as string,
+          sessionTypeId: data.sessionTypeId as string,
+        } as Partial<IGpsSession>);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      // Error handling is done in the mutation's onError callback
     }
   };
 
@@ -71,51 +88,28 @@ export default function GpsSessionForm() {
         flexDirection={"column"}
         gap={2}
       >
-        {session && (
-          <TextField
-            name="creator"
-            label="Creator"
-            defaultValue={session.userFirstLastName}
-            disabled
-          />
-        )}
         <TextField
           name="name"
           label="Session name"
           defaultValue={session?.name || ""}
           required
         />
-        {session && (
-          <DateTimePicker 
-            name="recordedAt"
-            label="Recorded At"
-            value={new Date(session.recordedAt)} 
-          />
-        )}
-        {session && (
-          <FormControl fullWidth>
-            <InputLabel>Session Type</InputLabel>
-            <Select
-              name="sessionType"
-              label="Session Type"
-              defaultValue={getDefaultSessionType()}
-              required
-            >
-              {sessionTypes?.map(type => (
-                <MenuItem key={type.id} value={type.description}>
-                  {type.description}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-        {session && (
-          <TextField
-            name="distance"
-            label="Distance"
-            defaultValue={formatDistance(session.distance)}
-          />
-        )}
+
+        <FormControl fullWidth required>
+          <InputLabel>Session Type</InputLabel>
+          <Select
+            name="sessionTypeId"
+            label="Session Type"
+            defaultValue={getDefaultSessionTypeId()}
+          >
+            {sessionTypes?.map(type => (
+              <MenuItem key={type.id} value={type.id}>
+                {type.name || type.description}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <TextField
           name="description"
           label="Description"
@@ -133,8 +127,12 @@ export default function GpsSessionForm() {
             size="large"
             color="primary"
             variant="contained"
+            disabled={createSession.isPending || updateSession.isPending}
           >
-            {session ? "Update" : "Create"}
+            {(createSession.isPending || updateSession.isPending) 
+              ? "Saving..." 
+              : (session ? "Update" : "Create")
+            }
           </Button>
         </Box>
       </Box>

@@ -3,6 +3,8 @@ import { makeAutoObservable } from "mobx";
 export default class AccountStore {
   jwt?: string = undefined;
   refreshToken?: string = undefined;
+  static jwt: any;
+  static refreshToken: any;
 
   constructor() {
     makeAutoObservable(this);

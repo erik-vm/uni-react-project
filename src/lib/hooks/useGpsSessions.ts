@@ -3,80 +3,117 @@ import type { IGpsSession } from "../../types/IGpsSession";
 import type { IGpsSessionType } from "../../types/IGpsSessionType";
 import agent from "../../utils/agent";
 import type { IGpsLocation } from "../../types/IGpsLocation";
+import { toast } from "react-toastify";
 export const useGpsSessions = (id?: string) => {
   const queryClient = useQueryClient();
 
-  const { data: sessions } = useQuery({
-    queryKey: ["sessions"],
+  // Fetch all sessions
+  const {
+    data: sessions,
+    isLoading: sessionsLoading,
+    error: sessionsError,
+  } = useQuery({
+    queryKey: ["gps-sessions"],
     queryFn: async () => {
       const response = await agent.get<IGpsSession[]>("/GpsSessions");
       return response.data;
     },
   });
 
-  const { data: session } = useQuery({
-    queryKey: ["sessions", id],
+  // Fetch single session (for editing)
+  const {
+    data: session,
+    isLoading: sessionLoading,
+    error: sessionError,
+  } = useQuery({
+    queryKey: ["gps-session", id],
     queryFn: async () => {
+      if (!id) return null;
       const response = await agent.get<IGpsSession>(`/GpsSessions/${id}`);
       return response.data;
     },
     enabled: !!id,
   });
 
-  const createSession = useMutation({
-    mutationFn: async (session: IGpsSession) => {
-      const response = await agent.post(`/GpsSessions`, session);
-      return response.data;
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["sessions"],
-      });
-    },
-  });
-
-  const updateSession = useMutation({
-    mutationFn: async (id: string) => {
-      await agent.put(`/GpsSessions/${id}`);
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["sessions"],
-      });
-    },
-  });
-
-  const deleteSession = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await agent.delete(`/GpsSessions/${id}`);
-      console.log(response.data)
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["sessions"],
-      });
-    },
-  });
-
-  const { data: sessionTypes } = useQuery({
-    queryKey: ["sessionTypes"],
+  // Fetch session types
+  const {
+    data: sessionTypes,
+    isLoading: sessionTypesLoading,
+    error: sessionTypesError,
+  } = useQuery({
+    queryKey: ["gps-session-types"],
     queryFn: async () => {
       const response = await agent.get<IGpsSessionType[]>("/GpsSessionTypes");
       return response.data;
     },
   });
 
+  // Create session
+  const createSession = useMutation({
+    mutationFn: async (data: Partial<IGpsSession>) => {
+      const response = await agent.post<IGpsSession>("/GpsSessions", data);
+      console.log(response.data)
+      return response.data;
+    },
+    onSuccess: (newSession) => {
+      queryClient.invalidateQueries({ queryKey: ["gps-sessions"] });
+      toast.success("Session created successfully!");
+    },
+    onError: (error: any) => {
+      console.error("Create session error:", error);
+      toast.error(error.response?.data?.message || "Failed to create session");
+    },
+  });
 
-   const { data: sessionLocation } = useQuery({
+  // Update session
+  const updateSession = useMutation({
+    mutationFn: async (data: Partial<IGpsSession> & { id: string }) => {
+      const response = await agent.put<IGpsSession>(
+        `/GpsSessions/${data.id}`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: (updatedSession) => {
+      queryClient.invalidateQueries({ queryKey: ["gps-sessions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["gps-session", updatedSession.id],
+      });
+      toast.success("Session updated successfully!");
+    },
+    onError: (error: any) => {
+      console.error("Update session error:", error);
+      toast.error(error.response?.data?.message || "Failed to update session");
+    },
+  });
+
+  // Delete session
+  const deleteSession = useMutation({
+    mutationFn: async (sessionId: string) => {
+      await agent.delete(`/GpsSessions/${sessionId}`);
+      return sessionId;
+    },
+    onSuccess: (deletedId) => {
+      queryClient.invalidateQueries({ queryKey: ["gps-sessions"] });
+      queryClient.removeQueries({ queryKey: ["gps-session", deletedId] });
+      toast.success("Session deleted successfully!");
+    },
+    onError: (error: any) => {
+      console.error("Delete session error:", error);
+      toast.error(error.response?.data?.message || "Failed to delete session");
+    },
+  });
+
+  const { data: sessionLocation } = useQuery({
     queryKey: ["sessionsLocation", id],
     queryFn: async () => {
-      const response = await agent.get<IGpsLocation[]>(`/GpsLocations/Session/${id}`);
+      const response = await agent.get<IGpsLocation[]>(
+        `/GpsLocations/Session/${id}`
+      );
       return response.data;
     },
     enabled: !!id,
   });
-
-  
 
   return {
     sessions,
@@ -85,6 +122,12 @@ export const useGpsSessions = (id?: string) => {
     updateSession,
     deleteSession,
     sessionTypes,
-    sessionLocation
+    sessionLocation,
+    sessionsLoading,
+    sessionLoading,
+    sessionTypesLoading,
+    sessionsError,
+    sessionError,
+    sessionTypesError,
   };
 };

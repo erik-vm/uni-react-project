@@ -10,6 +10,10 @@ import {
   MenuItem,
   Select,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   formatDate,
@@ -18,16 +22,18 @@ import {
   formatElevation,
   formatPace,
 } from "../../../utils/util";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import MapComponent from "../../../app/shared/components/MapComponent";
 import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
 
 export default function GpsSessionView() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { session, sessionLocation, deleteSession } = useGpsSessions(id);
   const [selectedLocationId, setSelectedLocationId] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Set the first location as default when sessionLocation loads
   useEffect(() => {
@@ -45,6 +51,19 @@ export default function GpsSessionView() {
       (loc) => loc.id.toString() === locationId
     );
     setSelectedLocation(location);
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    
+    try {
+      await deleteSession.mutateAsync(id);
+      setDeleteDialogOpen(false);
+      navigate("/dashboard"); // Navigate back to dashboard after successful delete
+    } catch (error) {
+      console.error("Failed to delete session:", error);
+      // Error is already handled by the mutation's onError callback
+    }
   };
 
   return (
@@ -81,12 +100,13 @@ export default function GpsSessionView() {
                     Edit
                   </Button>
                   <Button
-                    onClick={() => deleteSession}
+                    onClick={() => setDeleteDialogOpen(true)}
                     variant="contained"
                     size="large"
                     color="error"
+                    disabled={deleteSession.isPending}
                   >
-                    Delete
+                    {deleteSession.isPending ? "Deleting..." : "Delete"}
                   </Button>
                 </Box>
               </Box>
@@ -243,6 +263,38 @@ export default function GpsSessionView() {
           </Grid>
         </Box>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete the session "{session?.name}"? 
+            This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => setDeleteDialogOpen(false)}
+            color="inherit"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDelete}
+            color="error"
+            variant="contained"
+            disabled={deleteSession.isPending}
+          >
+            {deleteSession.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
