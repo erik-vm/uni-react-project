@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiUrl = import.meta.env.VITE_API_URL || 'https://sportmap.akaver.com/api/v1/';
+const apiUrl = 'https://sportmap.akaver.com/api/v1/';
 
 console.log('API URL:', apiUrl); // Debug log
 
