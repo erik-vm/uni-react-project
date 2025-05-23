@@ -1,8 +1,10 @@
 import axios from "axios";
 
-const apiUrl = 'https://sportmap.akaver.com/api/v1/';
+// This should now work correctly
+const apiUrl = import.meta.env.VITE_API_URL;
 
-console.log('API URL:', apiUrl); // Debug log
+console.log('Mode:', import.meta.env.MODE);
+console.log('API URL from env:', apiUrl);
 
 const agent = axios.create({
   baseURL: apiUrl,
@@ -11,7 +13,7 @@ const agent = axios.create({
 // Add request interceptor for debugging
 agent.interceptors.request.use(
   (config) => {
-
+    console.log('Making request to:', config.baseURL + config.url);
     return config;
   },
   (error) => {
@@ -25,8 +27,7 @@ agent.interceptors.response.use(
   },
   async (error) => {
     console.log('API Error:', error.response?.status, error.response?.data);
-    console.log('Request URL:', error.config?.url);
-    console.log('Base URL:', error.config?.baseURL);
+    console.log('Failed URL:', error.config?.baseURL + error.config?.url);
     return Promise.reject(error);
   }
 );
