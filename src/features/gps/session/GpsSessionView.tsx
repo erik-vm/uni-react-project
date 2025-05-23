@@ -245,7 +245,7 @@ export default function GpsSessionView() {
                   </Select>
                 </FormControl>
 
-                <Box sx={{ flexGrow: 1, minHeight: "60vh" }}>
+                <Box sx={{ flexGrow: 1, minHeight: "50vh" }}>
                   {selectedLocation ? (
                     <MapComponent
                       position={[

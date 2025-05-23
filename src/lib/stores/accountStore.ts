@@ -16,16 +16,16 @@ export default class AccountStore {
     this.jwt = jwt;
     this.refreshToken = refreshToken;
 
-    localStorage.setItem("jwt", jwt);
-    localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("_jwt", jwt);
+    localStorage.setItem("_refreshToken", refreshToken);
   }
 
   logout() {
     this.jwt = undefined;
     this.refreshToken = undefined;
 
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("_jwt");
+    localStorage.removeItem("_refreshToken");
   }
 
   get isLoggedIn() {
@@ -33,8 +33,8 @@ export default class AccountStore {
   }
 
   private loadTokensFromStorage() {
-    const jwt = localStorage.getItem("jwt");
-    const refreshToken = localStorage.getItem("refreshToken");
+    const jwt = localStorage.getItem("_jwt");
+    const refreshToken = localStorage.getItem("_refreshToken");
 
     if (jwt && refreshToken) {
       this.jwt = jwt;
