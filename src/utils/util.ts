@@ -48,4 +48,32 @@ export function formatElevation(elevation: number): string {
 
 export const requiredString = (fieldName: string) => z
     .string({ required_error: `${fieldName} is required` })
-    .min(1, { message: `${fieldName} is required` })
+    .min(1, { message: `${fieldName} is required` });
+
+export function formatTypeName(typeName: string){
+
+if (!typeName) {
+    return '';
+  }
+
+  try {
+    // Try to parse as JSON in case it's a stringified multilingual object
+    const parsed = JSON.parse(typeName);
+    
+    if (typeof parsed === 'object' && parsed !== null) {
+      // Extract value from multilingual object
+      // Priority: en -> et -> first available value
+      const name = parsed.en || parsed.et || Object.values(parsed)[0] || '';
+      
+      // Remove spaces around dashes and return clean name
+      return String(name).replace(/\s*-\s*/g, '-').trim();
+    }
+  } catch {
+    // If parsing fails, treat as regular string
+  }
+
+  // If it's already a regular string, just clean up the formatting
+  return typeName.replace(/\s*-\s*/g, '-').trim();
+}
+
+

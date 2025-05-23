@@ -20,16 +20,16 @@ export default function GpsSessionForm() {
 
   const { session, createSession, updateSession, sessionTypes } = useGpsSessions(id);
 
-  
-
   const navigate = useNavigate();
 
   // Get the default session type ID
   const getDefaultSessionTypeId = () => {
-    if (session) {
-      // If editing, try to get the current session type ID
-      // You might need to adjust this based on how your session stores the type
-      return session.gpsSessionType || sessionTypes?.[0]?.id || "";
+    if (session && sessionTypes) {
+      // If editing, find the session type ID by matching the gpsSessionType string
+      const matchingType = sessionTypes.find(
+        type => type.name === session.gpsSessionType || type.description === session.gpsSessionType
+      );
+      return matchingType?.id || sessionTypes?.[0]?.id || "";
     } else {
       // If creating, use the first available type as default
       return sessionTypes?.[0]?.id || "";

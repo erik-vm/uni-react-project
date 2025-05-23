@@ -23,7 +23,7 @@ export const useAccount = () => {
 
   const loginUser = useMutation({
     mutationFn: async (credentials: LoginSchema) => {
-      const response = await agent.post<AuthResponse>("/account/login", credentials);
+      const response = await agent.post<AuthResponse>("/account/login" + "?jwtExpiresInSeconds=5", credentials);
       return response.data;
     },
     onSuccess: async (data) => {

@@ -21,6 +21,7 @@ import {
   formatDuration,
   formatElevation,
   formatPace,
+  formatTypeName
 } from "../../../utils/util";
 import { Link, useParams, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
@@ -65,6 +66,8 @@ export default function GpsSessionView() {
       // Error is already handled by the mutation's onError callback
     }
   };
+
+ 
 
   return (
     <>
@@ -173,7 +176,8 @@ export default function GpsSessionView() {
                 <Typography variant="body2">
                   Description: {session?.description}
                 </Typography>
-                <Typography variant="body2">Type: {session?.name}</Typography>
+                <Typography variant="body2">Type: {session ? formatTypeName(session.gpsSessionType) : undefined
+}</Typography>
               </Grid>
 
               <Grid

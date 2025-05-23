@@ -50,27 +50,10 @@ agent.interceptors.response.use(
 
         console.log("Attempting token refresh...");
         
-        const response = await axios.post<ILoginDto>(
-          `${apiUrl}account/renewRefreshToken?jwtExpiresInSeconds=5`,
-          {
-            jwt: jwt,
-            refreshToken: refreshToken,
-          }
-        );
+    
 
-        console.log("renewRefreshToken response:", response);
 
-        if (response && response.status <= 300) {
-          // Update localStorage with new tokens
-          localStorage.setItem("jwt", response.data.jwt);
-          localStorage.setItem("refreshToken", response.data.refreshToken);
-          
-          // Update the failed request with new token
-          originalRequest.headers.Authorization = `Bearer ${response.data.jwt}`;
-
-          // Retry the original request
-          return agent(originalRequest);
-        }
+    
 
         return Promise.reject(error);
         
