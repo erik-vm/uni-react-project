@@ -1,20 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useContext } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import { useContext } from "react";
+import { StoreContext } from "../../lib/stores/store";
+import type { ILoginDto } from "../../types/ILoginDto";
+import type { IUserDto } from "../../types/IUserDto";
 import agent from "../../utils/agent";
 import type { LoginSchema } from "../schemas/loginSchema";
 import type { RegisterSchema } from "../schemas/registerSchema";
-import { StoreContext } from "../../lib/stores/store";
 
-interface AuthResponse {
-  jwt: string;
-  refreshToken: string;
-  token: string;
-  status: string;
-  firstName: string;
-  lastName: string;
-}
+
 
 export const useAccount = () => {
   const queryClient = useQueryClient();
@@ -23,40 +18,43 @@ export const useAccount = () => {
 
   const loginUser = useMutation({
     mutationFn: async (credentials: LoginSchema) => {
-      const response = await agent.post<AuthResponse>("/account/login" + "?jwtExpiresInSeconds=5", credentials);
-      return response.data;
-    },
-    onSuccess: async (data) => {
-      accountStore.setTokens(data.jwt, data.refreshToken);
-      userStore.setUser({
-        token: data.token,
-        status: data.status,
-        firstName: data.firstName,
-        lastName: data.lastName
-      });
-      
-      await queryClient.invalidateQueries({
-        queryKey: ["user"],
-      });
-      toast.success("Login successful");
-      navigate('/dashboard')
-    },
-  });
+ const [v2Response, v1Response] = await Promise.all([
+      agent.post<ILoginDto>("v2/account/login", credentials),
+      agent.post<IUserDto>("v1/account/login", credentials)
+    ]);
+
+    return {
+      tokens: v2Response.data,
+      userInfo: v1Response.data
+    };
+  },
+  onSuccess: async (data) => {
+
+    console.log(data)
+    // Set tokens
+    accountStore.setTokens(data.tokens.jwt, data.tokens.refreshToken);
+    
+    // Set user info
+     userStore.setUser(data.userInfo.token, data.userInfo.status, data.userInfo.firstName, data.userInfo.lastName);
+
+    await queryClient.invalidateQueries({
+      queryKey: ["user"],
+    });
+    
+    toast.success("Login successful");
+    navigate("/dashboard");
+  },
+});
 
   const registerUser = useMutation({
     mutationFn: async (credentials: RegisterSchema) => {
-      const response  = await agent.post("account/register", credentials);
+      const response  = await agent.post("/v1account/register", credentials);
       return response.data;
     },
     onSuccess: async (data) => {
       toast.success("Register successful");
        accountStore.setTokens(data.jwt, data.refreshToken);
-      userStore.setUser({
-        token: data.token,
-        status: data.status,
-        firstName: data.firstName,
-        lastName: data.lastName
-      });
+       userStore.setUser(data.userInfo.token, data.userInfo.status, data.userInfo.firstName, data.userInfo.lastName);
       
       await queryClient.invalidateQueries({
         queryKey: ["user"],

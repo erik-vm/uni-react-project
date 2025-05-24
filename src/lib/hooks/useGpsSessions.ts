@@ -15,7 +15,7 @@ export const useGpsSessions = (id?: string) => {
   } = useQuery({
     queryKey: ["gps-sessions"],
     queryFn: async () => {
-      const response = await agent.get<IGpsSession[]>("/GpsSessions");
+      const response = await agent.get<IGpsSession[]>("/v1/GpsSessions");
       return response.data;
     },
   });
@@ -29,7 +29,7 @@ export const useGpsSessions = (id?: string) => {
     queryKey: ["gps-session", id],
     queryFn: async () => {
       if (!id) return null;
-      const response = await agent.get<IGpsSession>(`/GpsSessions/${id}`);
+      const response = await agent.get<IGpsSession>(`/v1/GpsSessions/${id}`);
       return response.data;
     },
     enabled: !!id,
@@ -43,7 +43,7 @@ export const useGpsSessions = (id?: string) => {
   } = useQuery({
     queryKey: ["gps-session-types"],
     queryFn: async () => {
-      const response = await agent.get<IGpsSessionType[]>("/GpsSessionTypes");
+      const response = await agent.get<IGpsSessionType[]>("/v1/GpsSessionTypes");
       return response.data;
     },
   });
@@ -51,7 +51,7 @@ export const useGpsSessions = (id?: string) => {
   // Create session
   const createSession = useMutation({
     mutationFn: async (data: Partial<IGpsSession>) => {
-      const response = await agent.post<IGpsSession>("/GpsSessions", data);
+      const response = await agent.post<IGpsSession>("/v1/GpsSessions", data);
       console.log(response.data)
       return response.data;
     },

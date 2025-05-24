@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiUrl =
-  import.meta.env.VITE_API_URL || "https://sportmap.akaver.com/api/v1/";
+  import.meta.env.VITE_API_URL || "https://sportmap.akaver.com/api";
 
 const agent = axios.create({
   baseURL: apiUrl,
@@ -50,7 +50,7 @@ agent.interceptors.response.use(
         if (!jwt || !refreshToken) {
           console.log("No tokens available for refresh");
           localStorage.clear();
-          window.location.href = "/account/login";
+          window.location.href = "/login";
           return Promise.reject(error);
         }
 
@@ -81,7 +81,7 @@ agent.interceptors.response.use(
 
         // Clear tokens and redirect to login
         localStorage.clear();
-        window.location.href = "account/login";
+        window.location.href = "/login";
 
         return Promise.reject(refreshError);
       }
