@@ -32,7 +32,11 @@ export const useAccount = () => {
 
     console.log(data)
     // Set tokens
+<<<<<<< HEAD
     // accountStore.setTokens(data.tokens.jwt, data.tokens.refreshToken);
+=======
+    accountStore.setTokens(data.tokens.jwt, data.tokens.refreshToken);
+>>>>>>> c673a5d (account part should be fixed now)
     
     // Set user info
      userStore.setUser(data.userInfo.token, data.userInfo.status, data.userInfo.firstName, data.userInfo.lastName);
@@ -53,7 +57,11 @@ export const useAccount = () => {
     },
     onSuccess: async (data) => {
       toast.success("Register successful");
+<<<<<<< HEAD
       //  accountStore.setTokens(data.jwt, data.refreshToken);
+=======
+       accountStore.setTokens(data.jwt, data.refreshToken);
+>>>>>>> c673a5d (account part should be fixed now)
        userStore.setUser(data.userInfo.token, data.userInfo.status, data.userInfo.firstName, data.userInfo.lastName);
       
       await queryClient.invalidateQueries({
