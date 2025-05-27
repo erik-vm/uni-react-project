@@ -1,65 +1,106 @@
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from "@hookform/resolvers/zod";
 import { LockOpen } from "@mui/icons-material";
 import { Box, Button, Paper, Typography } from "@mui/material";
-import { useForm } from 'react-hook-form';
-import { Link, useLocation, useNavigate } from "react-router";
+import { useContext, useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
 import TextInput from "../../app/shared/components/TextInput";
-import { useAccount } from "../../lib/hooks/useAccount";
 import { loginSchema, type LoginSchema } from "../../lib/schemas/loginSchema";
+import { AccountService } from "../../lib/services/AccountService";
+import { AccountContext } from "../../lib/stores/accountStore";
 
 export default function LoginPage() {
+  const accountService = new AccountService();
+  const { setAccountInfo } = useContext(AccountContext);
 
-  const { loginUser } = useAccount();
+  const [errorMessage, setErrorMessage] = useState("");
+
   const navigate = useNavigate();
-  const location = useLocation();
-  const {control, handleSubmit, formState: {isValid, isSubmitting}} = useForm<LoginSchema>({
-    mode: 'onTouched',
-    resolver: zodResolver(loginSchema)
-  })
+  const {
+    control,
+    handleSubmit,
+    formState: { isValid, isSubmitting },
+  } = useForm<LoginSchema>({
+    mode: "onTouched",
+    resolver: zodResolver(loginSchema),
+  });
 
-  const onSubmit = async(data: LoginSchema) =>{
-    await loginUser.mutateAsync(data, {
-      onSuccess: () => {
-        navigate(location.state?.from || '/dashboard')
+  const onSubmit: SubmitHandler<LoginSchema> = async (data: LoginSchema) => {
+    console.log(data);
+    setErrorMessage("Loading...");
+    try {
+      const result = await accountService.loginAsync(data.email, data.password);
+      if (result.errors) {
+        setErrorMessage(result.statusCode + " " + result.errors[0]);
+        return;
       }
-    })
-  }
+
+      setErrorMessage("");
+    	setAccountInfo!({
+				jwt: result.data!.jwt,
+				refreshToken: result.data!.refreshToken
+			});
+      navigate("/dashboard");
+    } catch (error) {
+      setErrorMessage("Login failed -" + (error as Error).message);
+    }
+  };
 
   return (
-     <Paper 
-            component='form' 
-            onSubmit={handleSubmit(onSubmit)}
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                p: 3,
-                gap: 3,
-                maxWidth: 'md',
-                mx: 'auto',
-                borderRadius: 3
-            }}
+    <Paper
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        p: 3,
+        gap: 3,
+        maxWidth: "md",
+        mx: "auto",
+        borderRadius: 3,
+      }}
+    >
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        gap={3}
+        color="secondary.main"
+      >
+        {errorMessage}
+        <LockOpen fontSize="large" />
+        <Typography variant="h4">Sign in</Typography>
+      </Box>
+      <TextInput
+        label="Email"
+        control={control}
+        name="email"
+      />
+      <TextInput
+        label="Password"
+        type="password"
+        control={control}
+        name="password"
+      />
+      <Button
+        type="submit"
+        disabled={!isValid || isSubmitting}
+        variant="contained"
+        size="large"
+      >
+        Login
+      </Button>
+      <Typography sx={{ textAlign: "center" }}>
+        Don't have an account?
+        <Typography
+          sx={{ ml: 2 }}
+          component={Link}
+          to="/register"
+          color="primary"
         >
-            <Box display='flex' alignItems='center' justifyContent='center' 
-                gap={3} color='secondary.main'>
-                <LockOpen fontSize="large" />
-                <Typography variant="h4">Sign in</Typography>
-            </Box>
-            <TextInput label='Email' control={control} name='email' />
-            <TextInput label='Password' type='password' control={control} name='password' />
-            <Button 
-                type='submit' 
-                disabled={!isValid || isSubmitting}
-                variant="contained"
-                size="large"
-            >
-                Login
-            </Button>
-            <Typography sx={{textAlign: 'center'}}>
-                Don't have an account? 
-                <Typography sx={{ml: 2}} component={Link} to='/register' color="primary">
-                    Sign up
-                </Typography>
-            </Typography>
-        </Paper>
-  )
+          Sign up
+        </Typography>
+      </Typography>
+    </Paper>
+  );
 }
