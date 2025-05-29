@@ -1,140 +1,149 @@
 import { AxiosError } from "axios";
-import { BaseService } from "./BaseService";
 import type { ILoginDto } from "../../types/ILoginDto";
 import type { IResultObject } from "../../types/IResultObject";
+import type { IUserDto } from "../../types/IUserDto";
+import { BaseService } from "./BaseService";
+import UserStore from "../stores/userStore";
 export class AccountService extends BaseService {
-	async loginAsync(
-		email: string,
-		password: string
-	): Promise<IResultObject<ILoginDto>> {
-		const url = "v2/account/login";
-		try {
-			const loginData = {
-				email,
-				password,
-			};
+  userStore = new UserStore();
 
-			const response = await this.axiosInstance.post<ILoginDto>(
-				url + "?jwtExpiresInSeconds=5",
-				loginData
-			);
+  async loginAsync(
+    email: string,
+    password: string
+  ): Promise<IResultObject<ILoginDto>> {
+    const url = "v2/account/login";
+    try {
+      const loginData = {
+        email,
+        password,
+      };
 
-			console.log("login response", response);
+      const [jwtResponse, userDataResponse] = await [
+        await this.axiosInstance.post<ILoginDto>(
+          url + "?jwtExpiresInSeconds=5",
+          loginData
+        ),
+        await this.axiosInstance.post<IUserDto>(
+          "https://sportmap.akaver.com/api/v1/account/login",
+          loginData
+        ),
+      ];
 
-			if (response.status < 300) {
-				return {
-					statusCode: response.status,
-					data: response.data,
-				};
-			}
+ 
 
-			return {
-				statusCode: response.status,
-				errors: [
-					(
-						response.status.toString() +
-						" " +
-						response.statusText
-					).trim(),
-				],
-			};
-		} catch (error) {
-			console.log("error: ", (error as Error).message);
-			return {
-				statusCode: (error as AxiosError)?.response?.status ?? 500,
-				errors: [(error as AxiosError).code ?? ""],
-			};
-		}
-	}
+      if (jwtResponse.status < 300) {
+        localStorage.setItem("_jwt", jwtResponse.data.jwt);
+        localStorage.setItem("_refreshToken", jwtResponse.data.refreshToken);
+        this.userStore?.setUser(
+          userDataResponse.data.token,
+          userDataResponse.data.status,
+          userDataResponse.data.firstName,
+          userDataResponse.data.lastName
+        );
 
-	async registerAsync(
-		email: string,
-		password: string,
-		firstName: string,
-		lastName: string
-	): Promise<IResultObject<ILoginDto>> {
-		const url = "v2/account/register";
-		try {
-			const registerData = {
-				email,
-				password,
-				firstName,
-				lastName,
-			};
+console.log("name from store", this.userStore.fullName)
 
-			const response = await this.axiosInstance.post<ILoginDto>(
-				url,
-				registerData
-			);
+        return {
+          statusCode: jwtResponse.status,
+          data: jwtResponse.data,
+        };
+      }
 
-			console.log("register response", response);
+      return {
+        statusCode: jwtResponse.status,
+        errors: [
+          (jwtResponse.status.toString() + " " + jwtResponse.statusText).trim(),
+        ],
+      };
+    } catch (error) {
+      console.log("error: ", (error as Error).message);
+      return {
+        statusCode: (error as AxiosError)?.response?.status ?? 500,
+        errors: [(error as AxiosError).code ?? ""],
+      };
+    }
+  }
 
-			if (response.status < 300) {
-				return {
-					statusCode: response.status,
-					data: response.data,
-				};
-			}
+  async registerAsync(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): Promise<IResultObject<ILoginDto>> {
+    const url = "v2/account/register";
+    try {
+      const registerData = {
+        email,
+        password,
+        firstName,
+        lastName,
+      };
 
-			return {
-				statusCode: response.status,
-				errors: [
-					(
-						response.status.toString() +
-						" " +
-						response.statusText
-					).trim(),
-				],
-			};
-		} catch (error) {
-			console.log("error: ", (error as Error).message);
-			return {
-				statusCode: (error as AxiosError)?.response?.status ?? 500,
-				    errors: [(error as AxiosError).code ?? ""],
-			};
-		}
-	}
+      const response = await this.axiosInstance.post<ILoginDto>(
+        url,
+        registerData
+      );
 
-	async logoutAsync(): Promise<IResultObject<void>> {
-		const url = "v2/account/logout";
-		try {
-			const jwt = localStorage.getItem("_jwt");
+      console.log("register response", response);
 
-			const response = await this.axiosInstance.post<void>(
-				url,
-				{},
-				{
-					headers: {
-						Authorization: `Bearer ${jwt}`
-					}
-				}
-			);
+      if (response.status < 300) {
+        return {
+          statusCode: response.status,
+          data: response.data,
+        };
+      }
 
-			console.log("logout response", response);
+      return {
+        statusCode: response.status,
+        errors: [
+          (response.status.toString() + " " + response.statusText).trim(),
+        ],
+      };
+    } catch (error) {
+      console.log("error: ", (error as Error).message);
+      return {
+        statusCode: (error as AxiosError)?.response?.status ?? 500,
+        errors: [(error as AxiosError).code ?? ""],
+      };
+    }
+  }
 
-			if (response.status < 300) {
-				return {
-					statusCode: response.status,
-					data: undefined, 
-				};
-			}
+  async logoutAsync(): Promise<IResultObject<void>> {
+    const url = "v2/account/logout";
+    try {
+      const jwt = localStorage.getItem("_jwt");
 
-			return {
-				statusCode: response.status,
-				errors: [
-					(
-						response.status.toString() +
-						" " +
-						response.statusText
-					).trim(),
-				],
-			};
-		} catch (error) {
-			console.log("error: ", (error as Error).message);
-			return {
-				statusCode: (error as AxiosError)?.response?.status ?? 500,
-				    errors: [(error as AxiosError).code ?? ""],
-			};
-		}
-	}
+      const response = await this.axiosInstance.post<void>(
+        url,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
+      );
+
+      console.log("logout response", response);
+
+      if (response.status < 300) {
+        return {
+          statusCode: response.status,
+          data: undefined,
+        };
+      }
+
+      return {
+        statusCode: response.status,
+        errors: [
+          (response.status.toString() + " " + response.statusText).trim(),
+        ],
+      };
+    } catch (error) {
+      console.log("error: ", (error as Error).message);
+      return {
+        statusCode: (error as AxiosError)?.response?.status ?? 500,
+        errors: [(error as AxiosError).code ?? ""],
+      };
+    }
+  }
 }

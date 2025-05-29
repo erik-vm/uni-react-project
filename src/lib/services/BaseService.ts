@@ -1,26 +1,26 @@
 
-import { useContext } from "react";
-import type { ILoginDto } from "../../types/ILoginDto";
-import { AccountContext } from "../stores/accountStore";
 import axios, { type AxiosInstance } from "axios";
+import type { ILoginDto } from "../../types/ILoginDto";
+import { type IAccountInfo } from "../stores/accountStore";
+import type { IUserDto } from "../../types/IUserDto";
 
 export abstract class BaseService {
 	protected axiosInstance: AxiosInstance;
+	private setAccountInfo?: (value: IAccountInfo) => void;
+	private setUserInfo?: (value: IUserDto) => void;
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	private setAccountInfo = useContext(AccountContext).setAccountInfo;
-
-
-	constructor() {
-		this.axiosInstance
-			= axios.create({
-				baseURL: "https://sportmap.akaver.com/api/",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-			});
-
+	constructor(
+		setAccountInfo?: (value: IAccountInfo) => void, setUserInfo?: (value: IUserDto) => void) {
+		this.setAccountInfo = setAccountInfo;
+		this.setUserInfo = setUserInfo;
+		
+		this.axiosInstance = axios.create({
+			baseURL: "https://sportmap.akaver.com/api/",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+		});
 
 		this.axiosInstance.interceptors.request.use(
 			(config) => {
@@ -66,6 +66,20 @@ export abstract class BaseService {
 								jwt: response.data.jwt,
 								refreshToken: response.data.refreshToken,
 							});
+
+						const userData =	await this.axiosInstance.post<IUserDto>(
+          "https://sportmap.akaver.com/api/v1/account/login"
+
+		
+        )
+		  if(userData && userData.status <= 300){
+			setUserInfo!({
+				token: userData.data.token,
+				status: userData.data.status,
+				firstName: userData.data.firstName,
+				lastName: userData.data.lastName,
+			})
+		  }
 
 							return this.axiosInstance(originalRequest);
 						}

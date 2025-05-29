@@ -9,9 +9,9 @@ import { loginSchema, type LoginSchema } from "../../lib/schemas/loginSchema";
 import { AccountService } from "../../lib/services/AccountService";
 import { AccountContext } from "../../lib/stores/accountStore";
 
-export default function LoginPage() {
-  const accountService = new AccountService();
-  const { setAccountInfo } = useContext(AccountContext);
+export default function LoginForm() {
+ const { setAccountInfo } = useContext(AccountContext);
+  const accountService = new AccountService(setAccountInfo);
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -25,7 +25,7 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit: SubmitHandler<LoginSchema> = async (data: LoginSchema) => {
+   const onSubmit: SubmitHandler<LoginSchema> = async (data: LoginSchema) => {
     console.log(data);
     setErrorMessage("Loading...");
     try {
@@ -34,12 +34,8 @@ export default function LoginPage() {
         setErrorMessage(result.statusCode + " " + result.errors[0]);
         return;
       }
-
       setErrorMessage("");
-    	setAccountInfo!({
-				jwt: result.data!.jwt,
-				refreshToken: result.data!.refreshToken
-			});
+  
       navigate("/dashboard");
     } catch (error) {
       setErrorMessage("Login failed -" + (error as Error).message);

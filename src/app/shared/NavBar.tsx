@@ -5,9 +5,13 @@ import MenuItemLink from "./components/MenuItemLink";
 import useStore from "../../lib/hooks/useStore";
 import { Observer } from "mobx-react-lite";
 import UserMenu from "./UserMenu";
+import UserStore from "../../lib/stores/userStore";
 
 export default function NavBar() {
-  const { userStore, uiStore } = useStore();
+  const {  uiStore } = useStore();
+   const userStore = new UserStore();
+
+  console.log("username",userStore.firstName)
 
   return (
     <Box sx={{ flexGrow: 1 }}>

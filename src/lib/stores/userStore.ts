@@ -49,7 +49,7 @@ export default class UserStore {
   }
 
   private loadUserFromStorage() {
-    const token = localStorage.getItem("_toke");
+    const token = localStorage.getItem("_token");
     const status = localStorage.getItem("_status");
     const firstName = localStorage.getItem("_firstName");
     const lastName = localStorage.getItem("_lastName");

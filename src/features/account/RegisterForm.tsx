@@ -10,7 +10,7 @@ import {
   registerSchema,
 } from "../../lib/schemas/registerSchema";
 
-export default function RegisterPage() {
+export default function RegisterForm() {
   const { registerUser } = useAccount();
   const {
     control,

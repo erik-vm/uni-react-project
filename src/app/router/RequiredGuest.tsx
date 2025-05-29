@@ -1,9 +1,9 @@
-import { Navigate, Outlet } from "react-router";
-import useStore from "../../lib/hooks/useStore";
 import { Observer } from "mobx-react-lite";
+import { Navigate, Outlet } from "react-router";
+import UserStore from "../../lib/stores/userStore";
 
 export default function RequireGuest() {
-  const { userStore } = useStore();
+     const userStore = new UserStore();
 
   return (
     <Observer>

@@ -21,7 +21,7 @@ export const router = createBrowserRouter([
           { path: "/create", element: <GpsSessionForm key={"create"} /> },
           { path: "/edit/:id", element: <GpsSessionForm /> },
           { path: "/view/:id", element: <GpsSessionView /> },
-          { path: "/dashboard", element: <Dashboard /> },
+         
         ],
       },
       {
@@ -33,6 +33,7 @@ export const router = createBrowserRouter([
       },
 
       { path: "/", element: <HomePage /> },
+       { path: "/dashboard", element: <Dashboard /> },
     ],
   },
   
