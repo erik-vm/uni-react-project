@@ -25,7 +25,13 @@ export default function UserMenu() {
 
   return (
     <>
-  
+   <MenuItem
+        component={Link}
+        to="/dashboard"
+        onClick={handleClose}
+      >
+        <ListItemText>Dashboard</ListItemText>
+      </MenuItem>
       <MenuItem
         component={Link}
         to="/create"

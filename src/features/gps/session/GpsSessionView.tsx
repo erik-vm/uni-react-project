@@ -3,18 +3,18 @@ import {
   Button,
   Card,
   CardHeader,
-  Divider,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  Typography
 } from "@mui/material";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router";
+import MapComponent from "../../../app/shared/components/MapComponent";
+import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
 import {
   formatDate,
   formatDistance,
@@ -23,36 +23,15 @@ import {
   formatPace,
   formatTypeName
 } from "../../../utils/util";
-import { Link, useParams, useNavigate } from "react-router";
-import { useState, useEffect } from "react";
-import MapComponent from "../../../app/shared/components/MapComponent";
-import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
 
 export default function GpsSessionView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { session, sessionLocation, deleteSession } = useGpsSessions(id);
-  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Set the first location as default when sessionLocation loads
-  useEffect(() => {
-    if (sessionLocation && sessionLocation.length > 0 && !selectedLocationId) {
-      const firstLocation = sessionLocation[0];
-      setSelectedLocationId(firstLocation.id.toString());
-      setSelectedLocation(firstLocation);
-    }
-  }, [sessionLocation, selectedLocationId]);
 
-  const handleLocationChange = (event: any) => {
-    const locationId = event.target.value;
-    setSelectedLocationId(locationId);
-    const location = sessionLocation?.find(
-      (loc) => loc.id.toString() === locationId
-    );
-    setSelectedLocation(location);
-  };
 
   const handleDelete = async () => {
     if (!id) return;
@@ -212,57 +191,34 @@ export default function GpsSessionView() {
               size={9}
               p={2}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
-                }}
-              >
-                <FormControl
-                  fullWidth
-                  sx={{ mb: 2 }}
-                >
-                  <InputLabel id="location-select-label">
-                    Select Location
-                  </InputLabel>
-                  <Select
-                    labelId="location-select-label"
-                    value={selectedLocationId}
-                    label="Select Location"
-                    onChange={handleLocationChange}
-                  >
-                    {sessionLocation?.map((location, index) => (
-                      <MenuItem
-                        key={location.id}
-                        value={location.id.toString()}
-                      >
-                        Location {index + 1} - Lat:{" "}
-                        {location.latitude.toFixed(6)}, Lng:{" "}
-                        {location.longitude.toFixed(6)}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <Box sx={{ flexGrow: 1, minHeight: "50vh" }}>
-                  {selectedLocation ? (
-                    <MapComponent
-                      position={[
-                        selectedLocation.latitude,
-                        selectedLocation.longitude,
-                      ]}
-                    />
-                  ) : (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                    >
-                      Select a location to view on the map
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
+             
+            
+                
+<Box
+  sx={{
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+  }}
+>
+  <Box sx={{ flexGrow: 1, minHeight: "50vh" }}>
+    {sessionLocation && sessionLocation.length > 0 ? (
+      <MapComponent
+        locations={sessionLocation}
+        showPath={true}
+      />
+    ) : (
+      <Typography
+        variant="body2"
+        color="text.secondary"
+      >
+        No location data available for this session
+      </Typography>
+    )}
+  </Box>
+</Box>
+             
+             
             </Grid>
           </Grid>
         </Box>
