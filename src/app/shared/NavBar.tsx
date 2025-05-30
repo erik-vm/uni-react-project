@@ -1,17 +1,13 @@
 import { DirectionsRunOutlined } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, Typography, Container, MenuItem, CircularProgress } from "@mui/material";
-import { NavLink } from "react-router";
-import MenuItemLink from "./components/MenuItemLink";
-import useStore from "../../lib/hooks/useStore";
+import { AppBar, Box, CircularProgress, Container, MenuItem, Toolbar, Typography } from "@mui/material";
 import { Observer } from "mobx-react-lite";
+import { NavLink } from "react-router";
+import useStore from "../../lib/hooks/useStore";
+import MenuItemLink from "./components/MenuItemLink";
 import UserMenu from "./UserMenu";
-import UserStore from "../../lib/stores/userStore";
 
 export default function NavBar() {
-  const {  uiStore } = useStore();
-   const userStore = new UserStore();
-
-  console.log("username",userStore.firstName)
+  const {  uiStore, userStore } = useStore();
 
   return (
     <Box sx={{ flexGrow: 1 }}>

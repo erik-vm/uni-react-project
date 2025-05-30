@@ -56,7 +56,7 @@ agent.interceptors.response.use(
         console.log("Attempting token refresh...");
 
         const response = await axios.post(
-          `${apiUrl}account/renewRefreshToken?jwtExpiresInSeconds=5`,
+          `${apiUrl}/account/renewRefreshToken?jwtExpiresInSeconds=5`,
           {
             jwt: jwt,
             refreshToken: refreshToken,
