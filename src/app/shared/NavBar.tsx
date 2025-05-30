@@ -55,6 +55,7 @@ export default function NavBar() {
                     <UserMenu />
                   ) : (
                     <>
+                      <MenuItemLink to="/navbar">Navbar</MenuItemLink>
                       <MenuItemLink to="/login">Login</MenuItemLink>
                       <MenuItemLink to="/register">Register</MenuItemLink>
                     </>

@@ -15,8 +15,6 @@ export default function MenuItemLink({
       to={to}
       sx={{
         fontSize: "1.2rem",
-        textTransform: "uppercase",
-        fontWeight: "bold",
         color: "inherit",
         "&.active": {
           color: "yellow",

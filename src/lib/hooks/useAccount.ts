@@ -3,7 +3,6 @@ import { useContext } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { StoreContext } from "../../lib/stores/store";
-import type { ILoginDto } from "../../types/ILoginDto";
 import type { IUserDto } from "../../types/IUserDto";
 import agent from "../../utils/agent";
 import type { LoginSchema } from "../schemas/loginSchema";
@@ -18,24 +17,17 @@ export const useAccount = () => {
 
   const loginUser = useMutation({
     mutationFn: async (credentials: LoginSchema) => {
- const [v2Response, v1Response] = await Promise.all([
-      agent.post<ILoginDto>("v2/account/login", credentials),
-      agent.post<IUserDto>("v1/account/login", credentials)
-    ]);
+ const response= await
+      agent.post<IUserDto>("/account/login", credentials)
+    ;
 
-    return {
-      tokens: v2Response.data,
-      userInfo: v1Response.data
-    };
+    return response.data;
   },
   onSuccess: async (data) => {
 
     console.log(data)
-    // Set tokens
-    // accountStore.setTokens(data.tokens.jwt, data.tokens.refreshToken);
-    
-    // Set user info
-     userStore.setUser(data.userInfo.token, data.userInfo.status, data.userInfo.firstName, data.userInfo.lastName);
+
+     userStore.setUser(data.token, data.status, data.firstName, data.lastName);
 
     await queryClient.invalidateQueries({
       queryKey: ["user"],
@@ -48,7 +40,7 @@ export const useAccount = () => {
 
   const registerUser = useMutation({
     mutationFn: async (credentials: RegisterSchema) => {
-      const response  = await agent.post("/v1account/register", credentials);
+      const response  = await agent.post("/account/register", credentials);
       return response.data;
     },
     onSuccess: async (data) => {
