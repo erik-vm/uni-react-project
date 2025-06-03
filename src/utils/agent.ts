@@ -17,11 +17,7 @@ agent.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log("Making request to:", config.baseURL + config.url);
-    console.log(
-      "Auth header:",
-      config.headers.Authorization ? "Present" : "Missing"
-    );
+
     return config;
   },
   (error) => {
@@ -48,16 +44,11 @@ agent.interceptors.response.use(
         const refreshToken = localStorage.getItem("_refreshToken");
 
         if (!jwt || !refreshToken) {
-          console.log("No tokens available for refresh");
-          localStorage.clear();
-          window.location.href = "/login";
           return Promise.reject(error);
         }
 
-        console.log("Attempting token refresh...");
-
         const response = await axios.post(
-          `${apiUrl}account/renewRefreshToken?jwtExpiresInSeconds=5`,
+          `https://sportmap.akaver.com/api/v2account/renewRefreshToken?jwtExpiresInSeconds=5`,
           {
             jwt: jwt,
             refreshToken: refreshToken,
@@ -69,19 +60,11 @@ agent.interceptors.response.use(
           localStorage.setItem("_refreshToken", response.data.refreshToken);
           originalRequest.headers.Authorization = `Bearer ${response.data.jwt}`;
 
-          // Update your stores here if needed
-          // accountStore.setTokens(response.data.jwt, response.data.refreshToken);
-
           return agent(originalRequest);
         }
 
         return Promise.reject(error);
       } catch (refreshError) {
-        console.error("Error refreshing token:", refreshError);
-
-        // Clear tokens and redirect to login
-        localStorage.clear();
-        window.location.href = "/login";
 
         return Promise.reject(refreshError);
       }

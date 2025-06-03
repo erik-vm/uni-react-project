@@ -54,7 +54,7 @@ export default function GpsSessionForm() {
           id: session.id,
           name: data.name as string,
           description: data.description as string,
-          sessionTypeId: data.sessionTypeId as string,
+          gpsSessionTypeId: data.sessionTypeId as string,
         } as IGpsSession & { id: string });
         navigate("/dashboard");
       } else {
@@ -62,7 +62,7 @@ export default function GpsSessionForm() {
         await createSession.mutateAsync({
           name: data.name as string,
           description: data.description as string,
-          sessionTypeId: data.sessionTypeId as string,
+          gpsSessionTypeId: data.sessionTypeId as string,
         } as Partial<IGpsSession>);
         navigate("/dashboard");
       }

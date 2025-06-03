@@ -30,11 +30,10 @@ export const useAccount = () => {
   },
   onSuccess: async (data) => {
 
-    console.log(data)
-    // Set tokens
+   
     accountStore.setTokens(data.tokens.jwt, data.tokens.refreshToken);
     
-    // Set user info
+  
      userStore.setUser(data.userInfo.token, data.userInfo.status, data.userInfo.firstName, data.userInfo.lastName);
 
     await queryClient.invalidateQueries({
