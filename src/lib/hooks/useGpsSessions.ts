@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { IGpsSession } from "../../types/IGpsSession";
 import type { IGpsSessionType } from "../../types/IGpsSessionType";
@@ -55,10 +56,11 @@ export const useGpsSessions = (id?: string) => {
       console.log(response.data)
       return response.data;
     },
-    onSuccess: (newSession) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gps-sessions"] });
-      toast.success("Session created successfully!");
+      toast.success("Session created successfully! ");
     },
+ 
     onError: (error: any) => {
       console.error("Create session error:", error);
       toast.error(error.response?.data?.message || "Failed to create session");
@@ -69,7 +71,7 @@ export const useGpsSessions = (id?: string) => {
   const updateSession = useMutation({
     mutationFn: async (data: Partial<IGpsSession> & { id: string }) => {
       const response = await agent.put<IGpsSession>(
-        `/GpsSessions/${data.id}`,
+        `/v1/GpsSessions/${data.id}`,
         data
       );
       return response.data;
@@ -90,7 +92,7 @@ export const useGpsSessions = (id?: string) => {
   // Delete session
   const deleteSession = useMutation({
     mutationFn: async (sessionId: string) => {
-      await agent.delete(`/GpsSessions/${sessionId}`);
+      await agent.delete(`/v1/GpsSessions/${sessionId}`);
       return sessionId;
     },
     onSuccess: (deletedId) => {
@@ -108,7 +110,7 @@ export const useGpsSessions = (id?: string) => {
     queryKey: ["sessionsLocation", id],
     queryFn: async () => {
       const response = await agent.get<IGpsLocation[]>(
-        `/GpsLocations/Session/${id}`
+        `/v1/GpsLocations/Session/${id}`
       );
       return response.data;
     },

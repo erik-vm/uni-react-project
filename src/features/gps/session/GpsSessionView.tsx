@@ -3,60 +3,38 @@ import {
   Button,
   Card,
   CardHeader,
-  Divider,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  Typography,
 } from "@mui/material";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router";
+import MapComponent from "../../../app/shared/components/MapComponent";
+import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
 import {
   formatDate,
   formatDistance,
   formatDuration,
   formatElevation,
   formatPace,
-  formatTypeName
+  formatTypeName,
 } from "../../../utils/util";
-import { Link, useParams, useNavigate } from "react-router";
-import { useState, useEffect } from "react";
-import MapComponent from "../../../app/shared/components/MapComponent";
-import { useGpsSessions } from "../../../lib/hooks/useGpsSessions";
 
 export default function GpsSessionView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { session, sessionLocation, deleteSession } = useGpsSessions(id);
-  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Set the first location as default when sessionLocation loads
-  useEffect(() => {
-    if (sessionLocation && sessionLocation.length > 0 && !selectedLocationId) {
-      const firstLocation = sessionLocation[0];
-      setSelectedLocationId(firstLocation.id.toString());
-      setSelectedLocation(firstLocation);
-    }
-  }, [sessionLocation, selectedLocationId]);
-
-  const handleLocationChange = (event: any) => {
-    const locationId = event.target.value;
-    setSelectedLocationId(locationId);
-    const location = sessionLocation?.find(
-      (loc) => loc.id.toString() === locationId
-    );
-    setSelectedLocation(location);
-  };
 
   const handleDelete = async () => {
     if (!id) return;
-    
+
     try {
       await deleteSession.mutateAsync(id);
       setDeleteDialogOpen(false);
@@ -66,8 +44,6 @@ export default function GpsSessionView() {
       // Error is already handled by the mutation's onError callback
     }
   };
-
- 
 
   return (
     <>
@@ -123,7 +99,9 @@ export default function GpsSessionView() {
                   color: "#EEEEEE",
                 }}
               >
-                <span>{session ? formatDate(session.recordedAt) : undefined}</span>{" "}
+                <span>
+                  {session ? formatDate(session.recordedAt) : undefined}
+                </span>{" "}
                 <strong
                   style={{
                     marginLeft: 10,
@@ -134,7 +112,10 @@ export default function GpsSessionView() {
                 >
                   |
                 </strong>
-                <span>Distance: {session ? formatDistance(session.distance) : undefined}</span>
+                <span>
+                  Distance:{" "}
+                  {session ? formatDistance(session.distance) : undefined}
+                </span>
                 <strong
                   style={{
                     marginLeft: 10,
@@ -145,7 +126,10 @@ export default function GpsSessionView() {
                 >
                   |
                 </strong>
-                <span>Duration: {session ? formatDuration(session.duration) : undefined}</span>
+                <span>
+                  Duration:{" "}
+                  {session ? formatDuration(session.duration) : undefined}
+                </span>
                 <strong
                   style={{
                     marginLeft: 10,
@@ -176,8 +160,10 @@ export default function GpsSessionView() {
                 <Typography variant="body2">
                   Description: {session?.description}
                 </Typography>
-                <Typography variant="body2">Type: {session ? formatTypeName(session.gpsSessionType) : undefined
-}</Typography>
+                <Typography variant="body2">
+                  Type:{" "}
+                  {session ? formatTypeName(session.gpsSessionType) : undefined}
+                </Typography>
               </Grid>
 
               <Grid
@@ -190,19 +176,23 @@ export default function GpsSessionView() {
               >
                 <Grid size={12}>
                   <Typography variant="body2">
-                    Min/pace: {session ? formatPace(session.paceMin) : undefined}
+                    Min/pace:{" "}
+                    {session ? formatPace(session.paceMin) : undefined}
                   </Typography>
                   <Typography variant="body2">
-                    Max/pace: {session ? formatPace(session.paceMax) : undefined}
+                    Max/pace:{" "}
+                    {session ? formatPace(session.paceMax) : undefined}
                   </Typography>
                 </Grid>
 
                 <Grid size={12}>
                   <Typography variant="body2">
-                    Climb: {session ? formatElevation(session.climb) : undefined}
+                    Climb:{" "}
+                    {session ? formatElevation(session.climb) : undefined}
                   </Typography>
                   <Typography variant="body2">
-                    Descent: {session ? formatElevation(session.descent) : undefined}
+                    Descent:{" "}
+                    {session ? formatElevation(session.descent) : undefined}
                   </Typography>
                 </Grid>
               </Grid>
@@ -219,46 +209,18 @@ export default function GpsSessionView() {
                   height: "100%",
                 }}
               >
-                <FormControl
-                  fullWidth
-                  sx={{ mb: 2 }}
-                >
-                  <InputLabel id="location-select-label">
-                    Select Location
-                  </InputLabel>
-                  <Select
-                    labelId="location-select-label"
-                    value={selectedLocationId}
-                    label="Select Location"
-                    onChange={handleLocationChange}
-                  >
-                    {sessionLocation?.map((location, index) => (
-                      <MenuItem
-                        key={location.id}
-                        value={location.id.toString()}
-                      >
-                        Location {index + 1} - Lat:{" "}
-                        {location.latitude.toFixed(6)}, Lng:{" "}
-                        {location.longitude.toFixed(6)}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
                 <Box sx={{ flexGrow: 1, minHeight: "50vh" }}>
-                  {selectedLocation ? (
+                  {sessionLocation && sessionLocation.length > 0 ? (
                     <MapComponent
-                      position={[
-                        selectedLocation.latitude,
-                        selectedLocation.longitude,
-                      ]}
+                      locations={sessionLocation}
+                      showPath={true}
                     />
                   ) : (
                     <Typography
                       variant="body2"
                       color="text.secondary"
                     >
-                      Select a location to view on the map
+                      No location data available for this session
                     </Typography>
                   )}
                 </Box>
@@ -278,18 +240,18 @@ export default function GpsSessionView() {
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete the session "{session?.name}"? 
-            This action cannot be undone.
+            Are you sure you want to delete the session "{session?.name}"? This
+            action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button 
+          <Button
             onClick={() => setDeleteDialogOpen(false)}
             color="inherit"
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleDelete}
             color="error"
             variant="contained"
