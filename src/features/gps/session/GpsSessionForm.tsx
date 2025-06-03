@@ -55,7 +55,7 @@ export default function GpsSessionForm() {
           name: data.name as string,
           description: data.description as string,
           gpsSessionTypeId: data.sessionTypeId as string,
-        } as IGpsSession & { id: string });
+        } as unknown as IGpsSession & { id: string });
         navigate("/dashboard");
       } else {
         // For create, pass name, description, and sessionTypeId
