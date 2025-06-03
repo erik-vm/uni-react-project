@@ -1,17 +1,18 @@
 import { createContext } from "react";
-import UserStore from "./userStore";
-import AccountStore from "./accountStore";
+
+// import AccountStore from "./accountStore";
 import { UiStore } from "./uiStore";
+import UserStore from "./userStore";
 
 interface Store {
   userStore: UserStore;
-  accountStore: AccountStore;
+  // accountStore: AccountStore;
   uiStore: UiStore;
 }
 
 export const store: Store = {
   userStore: new UserStore(),
-  accountStore: new AccountStore(),
+  // accountStore: new AccountStore(),
   uiStore: new UiStore(),
 };
 

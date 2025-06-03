@@ -14,7 +14,7 @@ import type { RegisterSchema } from "../schemas/registerSchema";
 export const useAccount = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { accountStore, userStore } = useContext(StoreContext);
+  const {  userStore } = useContext(StoreContext);
 
   const loginUser = useMutation({
     mutationFn: async (credentials: LoginSchema) => {
@@ -30,8 +30,17 @@ export const useAccount = () => {
   },
   onSuccess: async (data) => {
 
+<<<<<<< HEAD
+    console.log(data)
+    // Set tokens
+<<<<<<< HEAD
+    // accountStore.setTokens(data.tokens.jwt, data.tokens.refreshToken);
+=======
+=======
    
+>>>>>>> final
     accountStore.setTokens(data.tokens.jwt, data.tokens.refreshToken);
+>>>>>>> c673a5d (account part should be fixed now)
     
   
      userStore.setUser(data.userInfo.token, data.userInfo.status, data.userInfo.firstName, data.userInfo.lastName);
@@ -52,7 +61,11 @@ export const useAccount = () => {
     },
     onSuccess: async (data) => {
       toast.success("Register successful");
+<<<<<<< HEAD
+      //  accountStore.setTokens(data.jwt, data.refreshToken);
+=======
        accountStore.setTokens(data.jwt, data.refreshToken);
+>>>>>>> c673a5d (account part should be fixed now)
        userStore.setUser(data.userInfo.token, data.userInfo.status, data.userInfo.firstName, data.userInfo.lastName);
       
       await queryClient.invalidateQueries({
@@ -64,7 +77,7 @@ export const useAccount = () => {
   });
 
   const logoutUser = () => {
-    accountStore.logout();
+    // accountStore.logout();
     
     userStore.clearUser();
     

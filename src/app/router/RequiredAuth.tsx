@@ -1,10 +1,12 @@
-import { CircularProgress, Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
+import { Observer } from "mobx-react-lite";
 import { Navigate, Outlet, useLocation } from "react-router";
 import useStore from "../../lib/hooks/useStore";
-import { Observer } from "mobx-react-lite";
+import UserStore from "../../lib/stores/userStore";
 
 export default function RequireAuth() {
-  const { userStore, uiStore } = useStore();
+  const { uiStore } = useStore();
+  const userStore = new UserStore();
   const location = useLocation();
 
   return (
